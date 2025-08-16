@@ -22,12 +22,13 @@ export const auth = betterAuth({
                     email: profile.email,
                     image: profile.picture,
                     role: userRole  // any user logged in they will be normal user
+                    // role: adminEmails.includes(profile.email) ? "admin" : "user"
                     // by default 
                 }
             }
         }
     },
-    
+
     plugins: [
         admin({
             adminRoles: [adminRole], // (property) adminRoles: string[]

@@ -8,6 +8,13 @@
       "when": 1755328779452,
       "tag": "0000_burly_caretaker",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1755372514153,
+      "tag": "0001_curved_oracle",
+      "breakpoints": true
     }
   ]
 }

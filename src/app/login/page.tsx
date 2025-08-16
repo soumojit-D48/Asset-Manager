@@ -1,10 +1,20 @@
 import LoginButton from "@/components/auth/login-button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { auth } from "@/lib/auth";
 import { Package } from "lucide-react";
+import { headers } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 
-function Login() {
+async function LoginPage() {
+
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if(session) redirect('/')
+
     return ( 
         <div className="flex min-h-screen items-center justify-center bg-slate-100 ">
             <Card className="w-full max-w-md shadow">
@@ -35,4 +45,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default LoginPage;
