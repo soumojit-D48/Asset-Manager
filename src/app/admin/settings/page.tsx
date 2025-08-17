@@ -1,11 +1,17 @@
+import { getAllCategoriesAction, getTotalUsesCountAction } from "@/actions/admin-actions";
 import CategoryManager from "@/components/admin/category-management";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users } from "lucide-react";
 
 
 
-function SettingsPage() {
+async function SettingsPage() {
 
+  const [categories, userCount] = await Promise.all([
+    getAllCategoriesAction(),
+    getTotalUsesCountAction()
+    // returns Promise<Category[]> and Promise<number>
+  ])
   
   return (
     <div className="container py-10">
@@ -22,7 +28,7 @@ function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-blue-600">100</p>
+            <p className="text-3xl font-bold text-blue-600">{userCount}</p>
           </CardContent>
         </Card>
 
@@ -51,7 +57,7 @@ function SettingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <CategoryManager categories={[]}/>
+          <CategoryManager categories={categories}/>
         </CardContent>
       </Card>
 
