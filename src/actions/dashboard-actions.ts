@@ -74,7 +74,7 @@ export async function getUserAssetsAction(userId: string) {
             .select()
             .from(asset)
             .where(eq(asset.userId, userId))
-            .orderBy(asset.cretedAt)
+            .orderBy(asset.createdAt)
     } catch (e) {
         return []
     }

@@ -95,7 +95,7 @@ export const asset = pgTable('asset', {
     .notNull()
     .references(() => user.id, {onDelete: 'cascade'}),
   categoryId: integer('category_id').references(() => category.id),
-  cretedAt: timestamp('created_at')
+  createdAt: timestamp('created_at')
     .$defaultFn(() => new Date())
     .notNull(),
   updatedAt: timestamp('updated_at')

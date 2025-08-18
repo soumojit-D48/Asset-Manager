@@ -25,7 +25,7 @@ async function AssetsPage() {
                 <h1 className="text-3xl font-extrabold">My Assets</h1>
                 <UploadAsset categories={categries || []}/>
             </div>
-            <AssetGrid/>
+            <AssetGrid assets={assets}/>
 
         </div>
      );
