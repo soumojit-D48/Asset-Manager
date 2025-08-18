@@ -88,9 +88,12 @@ export const asset = pgTable('asset', {
   id: uuid('id').defaultRandom().primaryKey(),
   title: text('title').notNull(),
   description: text('description').notNull(),
+  fileUrl: text("file_url").notNull(),
   thumbnailUrl: text('thumbnail_url'),
   isApproved: text('is_approved').default('pending').notNull(),
-  userId: text('user_id').notNull().references(() => user.id, {onDelete: 'cascade'}),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, {onDelete: 'cascade'}),
   categoryId: integer('category_id').references(() => category.id),
   cretedAt: timestamp('created_at')
     .$defaultFn(() => new Date())

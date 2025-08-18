@@ -15,6 +15,13 @@
       "when": 1755372514153,
       "tag": "0001_curved_oracle",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1755514866142,
+      "tag": "0002_mighty_devos",
+      "breakpoints": true
     }
   ]
 }
