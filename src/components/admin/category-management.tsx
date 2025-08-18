@@ -64,6 +64,7 @@ function CategoryManager({categories: initialCategories} : CategoryManagerProps)
 						<Input 
 							id="categoryName"
 							onChange={(e) => setNewCategoryName(e.target.value)}
+              value={newCategoryName}
 							placeholder="Enter category name"	
 						/>
 						<Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">
@@ -90,14 +91,15 @@ function CategoryManager({categories: initialCategories} : CategoryManagerProps)
 						{
 							categories.map(category => (
 								<TableRow key={category.id}>
-									<TableCell className="font-medium">{category.name}</TableCell>
+									<TableCell className="font-medium">
+                    {category.name}
+                  </TableCell>
 									<TableCell >
                     {new Date(category.createdAt).toLocaleDateString()}
                   </TableCell>
 									<TableCell>
 										<Button onClick={() => handleDeleteCategory(category.id)} variant='ghost' size='icon'>
 											<Trash2 className="h-5 w-5 text-red-500"/>
-
 										</Button>
 									</TableCell>
 								</TableRow>
