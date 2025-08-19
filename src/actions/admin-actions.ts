@@ -245,37 +245,106 @@ export async function getPendingAssetsAction() {
     }
 }
 
+// export async function getPublicAssetsAction(categoryId?: number) {
+//     try {
+//         // multiple base condition
+
+//         // let conditions = and(
+//         //     eq(asset.isApproved, 'approved'),
+//         //     // eq(asset.isApproved, 'pending')
+//         // )
+
+//         let conditions = eq(asset.isApproved, "approved");
+
+//         // if(categoryId) {
+//         //     conditions = and(
+//         //         eq(asset.categoryId, categoryId)
+//         //     )
+//         // }
+
+//     //      if (categoryId) {
+//     //   conditions = and(
+//     //     eq(asset.isApproved, "approved"),
+//     //     eq(asset.categoryId, categoryId)
+//     //   );
+//     // }
+
+//         const query = await db
+//             .select({
+//                 asset: asset,
+//                 categoryName: category.name,
+//                 userName: user.name
+//             })
+//             .from(asset)
+//             .leftJoin(category, eq(asset.categoryId, category.id))
+//             .leftJoin(user, eq(asset.userId, user.id))
+//             .where(conditions)
+
+//             return query
+//     } catch (e) {
+//         console.error(e);
+//         return []
+//     }
+// }
+
+
+
 export async function getPublicAssetsAction(categoryId?: number) {
-    try {
-        // multiple base condition
+  try {
+    // Start with an array of conditions
+    const conditions = [eq(asset.isApproved, "approved")];
 
-        let conditions = and(
-            eq(asset.isApproved, 'approved')
-        )
-
-        if(categoryId) {
-            conditions = and(
-                eq(asset.categoryId, categoryId)
-            )
-        }
-
-        const query = await db
-            .select({
-                asset: asset,
-                categoryName: category.name,
-                userName: user.name
-            })
-            .from(asset)
-            .leftJoin(category, eq(asset.categoryId, category.id))
-            .leftJoin(user, eq(asset.id, user.id))
-            .where(conditions)
-
-            return query
-    } catch (e) {
-        console.error(e);
-        return []
+    if (categoryId) {
+      conditions.push(eq(asset.categoryId, categoryId));
     }
+
+    const query = await db
+      .select({
+        asset: asset,
+        categoryName: category.name,
+        userName: user.name,
+      })
+      .from(asset)
+      .leftJoin(category, eq(asset.categoryId, category.id))
+      .leftJoin(user, eq(asset.userId, user.id))
+      .where(and(...conditions)); // no undefined issue
+
+    return query;
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
 }
+
+
+// export async function getPublicAssetsAction(categoryId?: number | null) {
+//   try {
+//     // build conditions dynamically
+//     const conditions = categoryId
+//       ? and(eq(asset.isApproved, "approved"), eq(asset.categoryId, categoryId))
+//       : eq(asset.isApproved, "approved"); // ✅ just a single eq when no category
+
+//     const query = await db
+//       .select({
+//         asset: asset,
+//         categoryName: category.name,
+//         userName: user.name,
+//       })
+//       .from(asset)
+//       .leftJoin(category, eq(asset.categoryId, category.id))
+//       .leftJoin(user, eq(asset.userId, user.id))
+//       .where(conditions);
+
+//     return query;
+//   } catch (e) {
+//     console.error(e);
+//     return [];
+//   }
+// }
+
+
+
+
 
 // when we click on a asset in gallery page it should redirect to a details page of that asset
 
