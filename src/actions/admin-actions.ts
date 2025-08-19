@@ -2,11 +2,11 @@
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { category, user } from '@/lib/db/schema'
-import { count, eq, sql } from 'drizzle-orm'
+import { asset, category, user } from '@/lib/db/schema'
+import { and, eq, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
-import {z} from 'zod'
+import { z } from 'zod'
 
 const CategorySchema = z.object({
     name: z
@@ -131,5 +131,172 @@ export async function deleteCategoryAction(categoryId: number) {
             success: false,
             message:  'Failed to delete category'
         }
+    }
+}
+
+export async function getTotalAssetsCountAction() {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if(!session?.user || session?.user?.role !== 'admin'){
+        throw new Error('You must be an admin to add categories')
+    }
+
+    try { // total user = uaers - admin
+        const result = await db
+            .select({count : sql<number>`count(*)`}) //  custom SQL to count rows
+            .from(asset)
+            // [{ count: 42 }]
+
+        return result[0]?.count || 0
+
+    } catch (e) {
+        console.log(e);
+        return 0
+    }
+}
+
+
+export async function approveAssetAction(assetId: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if(!session?.user || session?.user?.role !== 'admin'){
+        throw new Error('You must be an admin to approve this data')
+    }
+
+    try {
+        await db
+            .update(asset)
+            .set({
+            isApproved: 'approved',
+            updatedAt: new Date()
+            })
+            .where(eq(asset.id, assetId))
+
+            revalidatePath('/admin/asset-approval')
+
+            return {
+                success: true
+            }
+    } catch (e) {
+        return {
+            success: false,
+        }
+    }
+}
+
+
+export async function rejectAssetAction(assetId: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if(!session?.user || session?.user?.role !== 'admin'){
+        throw new Error('You must be an admin to reject this data')
+    }
+
+    try {
+        await db
+            .update(asset)
+            .set({
+            isApproved: 'rejected',
+            updatedAt: new Date()
+            })
+            .where(eq(asset.id, assetId))
+
+            revalidatePath('/admin/asset-approval')
+
+            return {
+                success: true
+            }
+    } catch (e) {
+        return {
+            success: false,
+        }
+    }
+
+}
+
+export async function getPendingAssetsAction() {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if(!session?.user || session?.user?.role !== 'admin'){
+        throw new Error('You must be an admin to access this data')
+    }
+
+    try {
+        const pendingAssets = await db
+            .select({
+                asset: asset,
+                userName: user.name
+            })
+        .from(asset)
+        .leftJoin(user, eq(asset.userId, user.id))
+        .where(eq(asset.isApproved, 'pending'))
+
+        return pendingAssets
+    } catch (e) {
+        return []
+    }
+}
+
+export async function getPublicAssetsAction(categoryId?: number) {
+    try {
+        // multiple base condition
+
+        let conditions = and(
+            eq(asset.isApproved, 'approved')
+        )
+
+        if(categoryId) {
+            conditions = and(
+                eq(asset.categoryId, categoryId)
+            )
+        }
+
+        const query = await db
+            .select({
+                asset: asset,
+                categoryName: category.name,
+                userName: user.name
+            })
+            .from(asset)
+            .leftJoin(category, eq(asset.categoryId, category.id))
+            .leftJoin(user, eq(asset.id, user.id))
+            .where(conditions)
+
+            return query
+    } catch (e) {
+        console.error(e);
+        return []
+    }
+}
+
+// when we click on a asset in gallery page it should redirect to a details page of that asset
+
+export async function getAssetByIdAction(assetId: string) {
+    try {
+        const [result] = await db
+            .select({
+                asset: asset,
+                categoryName: category.name,
+                userName: user.name,
+                userImage: user.image,
+                userId: user.id
+            })
+            .from(asset)
+            .leftJoin(category, eq(asset.categoryId, category.id))
+            .leftJoin(user, eq(asset.userId, user.id))
+            .where(eq(asset.id,assetId))
+
+            return result
+
+    } catch (e) {
+        return null
     }
 }
