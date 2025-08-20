@@ -48,7 +48,7 @@ async function GalleryContent({ searchParams }: GallaryPageProps) {
   // const sp = await searchParams
   // const categoryId = sp.category? Number.parseInt(sp.category) : undefined
 
-  const { category } = searchParams;
+  const { category } = await searchParams;
   const categoryId = category ? Number.parseInt(category) : undefined;
 
 
