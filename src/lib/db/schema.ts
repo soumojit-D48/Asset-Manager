@@ -110,6 +110,7 @@ export const payment = pgTable('payment', {
   currency: text('currency').default('USD').notNull(),
   provider: text('provider').notNull(),
   providerId: text('provider_id'),
+  status: text('status'),
   userId: text('user_id').notNull().references(() => user.id),
   createdAt: timestamp('created_at')
   .$defaultFn(() => new Date())

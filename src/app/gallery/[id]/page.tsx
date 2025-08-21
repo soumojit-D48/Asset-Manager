@@ -2,6 +2,7 @@
 // this is a dynamic page so it will recive the params
 
 import { getAssetByIdAction } from "@/actions/admin-actions";
+import { createPaypalOrderAction } from "@/actions/payment-actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -68,6 +69,20 @@ async function GalleryContent({ params }: GalleryDetailsPageProps) {
 		: 'U'
 
 		const hasPurchasedAsset = false
+
+		const handlePurchase = async () => {
+			'use server'
+			const result = await createPaypalOrderAction(params.id)
+
+			if(result.alreadyPurchases) {
+				redirect(`/gallery/${params.id}?success=true`)
+			}
+
+			if(result.approvalLink){
+				redirect(result.approvalLink)
+			} 
+			      
+		}
 
 
 	return (
@@ -136,7 +151,7 @@ async function GalleryContent({ params }: GalleryDetailsPageProps) {
 																	Download Asset
 																</a>
 															</Button> 
-															: <form>
+															: <form action={handlePurchase}>
 																	<Button type="submit" className="w-full bg-black text-white h-12">
 																		<ShoppingCart className="mr-2 h-6 w-6">
 
