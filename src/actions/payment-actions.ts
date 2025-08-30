@@ -8,6 +8,7 @@ import { asset, payment, purchase } from "@/lib/db/schema"
 import { and, eq } from "drizzle-orm"
 import {v4 as uuidv4} from 'uuid'
 import { revalidatePath } from "next/cache"
+import { createInvoiceAction } from "./invoice-actions"
 
 export async function createPaypalOrderAction(assetId: string) {
     const session = await auth.api.getSession({
@@ -134,6 +135,13 @@ export async function recordPurchaseAction(assetId: string, paypalOrderId: strin
         })
 
         // create invoice***
+
+        const invoiceResult = await createInvoiceAction(purchaseUuid)
+
+        if(!invoiceResult.success){
+            console.error('Failed to create invoice');
+            
+        }
 
 
         revalidatePath(`/gallery/${assetId}`)

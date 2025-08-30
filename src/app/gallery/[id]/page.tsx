@@ -2,12 +2,12 @@
 // this is a dynamic page so it will recive the params
 
 import { getAssetByIdAction } from "@/actions/admin-actions";
-import { createPaypalOrderAction } from "@/actions/payment-actions";
+import { createPaypalOrderAction, hasUserPurchasedAssetAction } from "@/actions/payment-actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
-import { Download, Info, Loader2, ShoppingCart, Tag } from "lucide-react";
+import { CheckCircle, Download, Info, Loader2, ShoppingCart, Tag } from "lucide-react";
 import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,9 +19,14 @@ interface GalleryDetailsPageProps {
 	params: {
 		id: string
 	}
+	searchParms: {
+		success?: string,
+		cancelled?: string,
+		error?: string
+	}
 }
 
-function GallaryDetailsPage({ params }: GalleryDetailsPageProps) {
+function GallaryDetailsPage({ params, searchParms }: GalleryDetailsPageProps) {
 	return (
 		<Suspense
 			fallback={
@@ -30,7 +35,7 @@ function GallaryDetailsPage({ params }: GalleryDetailsPageProps) {
 				</div>
 			}
 		>
-			<GalleryContent params={params} />
+			<GalleryContent params={params} searchParms={searchParms} />
 
 		</Suspense>
 	);
@@ -38,7 +43,7 @@ function GallaryDetailsPage({ params }: GalleryDetailsPageProps) {
 
 export default GallaryDetailsPage;
 
-async function GalleryContent({ params }: GalleryDetailsPageProps) {
+async function GalleryContent({ params, searchParms}: GalleryDetailsPageProps) {
 
 	const session = await auth.api.getSession({
 		headers: await headers()
@@ -47,6 +52,8 @@ async function GalleryContent({ params }: GalleryDetailsPageProps) {
 	if (session && session?.user?.role === 'admin') {
 		redirect('/')
 	}
+
+	const success = searchParms?.success
 
 	/// **** have to move some actions to dashboard from admin action ***
 	const result = await getAssetByIdAction(params?.id)
@@ -68,7 +75,8 @@ async function GalleryContent({ params }: GalleryDetailsPageProps) {
 			.toUpperCase()
 		: 'U'
 
-		const hasPurchasedAsset = false
+		const hasPurchasedAsset = session?.user?.id ?
+		await hasUserPurchasedAssetAction(params.id) : false
 
 		const handlePurchase = async () => {
 			'use server'
@@ -87,6 +95,14 @@ async function GalleryContent({ params }: GalleryDetailsPageProps) {
 
 	return (
 		<div className="min-h-screen container px-4 bg-white">
+			{
+				success && (
+					<div className="flex items-center gap-3 p-4 bg-green-50 text-green-700 border border-green-200">
+						<CheckCircle className="w-5 h-5"/>
+						<p>Purchase successfull now you can download the asset!</p>
+					</div>
+				)
+			}
 			<div className="container py-12">
 				<div className="grid gap-12 md:grid-cols-3">
 					<div className="md:col-span-2 space-y-8"> {/*left*/}
@@ -146,7 +162,7 @@ async function GalleryContent({ params }: GalleryDetailsPageProps) {
 													: 
 														hasPurchasedAsset
 															? <Button asChild className="w-full bg-green-600 text-white h-12">
-																<a download>
+																<a href={`/api/download/${params.id}`} download>
 																	<Download className="mr-2 h-6 w-6"/>
 																	Download Asset
 																</a>
