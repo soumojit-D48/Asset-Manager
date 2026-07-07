@@ -1,5 +1,1 @@
-testing 1
-ok
-edit 
-edit
-edit
+Asset-Manager README file
