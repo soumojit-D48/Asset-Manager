@@ -1,5 +1,2 @@
-testing 1
-ok
-edit 
-edit
-edit
+Asset-Manager README file
+edit for commit 2
